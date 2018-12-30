@@ -110,10 +110,9 @@ def gen_book_tuple(name, path, series, dropbox_download):
 
 def run(dbi):
     # root_folder = load_configuration()["ROOT_FOLDER_PATH"]
-    tuples = dbi.get_book_tuples("/Eppe's Stuff/AudioBooks/Already Read")
-    tuples.extend(dbi.get_book_tuples("/Eppe's Stuff/AudioBooks/Haven't Read"))
-    tuples.extend(dbi.get_book_tuples(
-        "/Eppe's Stuff/AudioBooks/Didn't Finish"))
+    tuples = list()
+    for path in load_configuration()["AUDIOBOOK_SOURCES"]:
+        tuples.extend(dbi.get_book_tuples(path))
 
     write_tuples_to_csv(tuples, 'books.csv')
 
@@ -139,7 +138,3 @@ if __name__ == "__main__":
     access_token = load_configuration()["ACCESS_TOKEN"]
     dbi = DropboxInterface(access_token)
     run(dbi)
-    # print(x)
-
-    # print(get_direct_download_link(
-    # dbi.dbx, folder_results.entries[0].path_lower))
