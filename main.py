@@ -2,6 +2,7 @@
 import dropbox
 import json
 import csv
+import pymysql
 
 configuration_file = "configuration.json"
 
@@ -15,6 +16,24 @@ def remove_prefix(text, prefix):
     if text.startswith(prefix):
         return text[len(prefix):]
     return text
+
+
+class RDSInterface(object):
+
+    def __init__(self, rds_host, user, password, db_name):
+        self.conn = pymysql.connect(rds_host, user=user,
+                                    passwd=password, db=db_name, connect_timeout=5)
+
+    def query_name(self, name_substring):
+        cur = self.conn.cursor()
+        sql = "select * from raw_dropbox where name like %s"
+
+        cur.execute(sql, ('%' + name_substring + '%'))
+
+        data = cur.fetchall()
+        cur.close()
+
+        return data
 
 
 class DropboxInterface(object):
@@ -134,7 +153,18 @@ def test2(dbi):
         print(val)
 
 
+def testDb(rdsi):
+    print(rdsi.query_name("elantris"))
+
+
 if __name__ == "__main__":
     access_token = load_configuration()["ACCESS_TOKEN"]
     dbi = DropboxInterface(access_token)
-    run(dbi)
+    # run(dbi)
+    db_name = load_configuration()["db_name"]
+    db_password = load_configuration()["db_password"]
+    db_user = load_configuration()["db_user"]
+    rds_host = load_configuration()["rds_host"]
+
+    rdsi = RDSInterface(rds_host, db_user, db_password, db_name)
+    testDb(rdsi)
