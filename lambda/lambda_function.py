@@ -34,9 +34,10 @@ class RDSInterface(object):
 
     def query_name(self, name_substring):
         cur = self.conn.cursor()
-        sql = "select * from raw_dropbox where name like %s"
+        sql = "select * from raw_dropbox where name like %s OR series like %s"
 
-        cur.execute(sql, ('%' + name_substring + '%'))
+        cur.execute(sql, [('%' + name_substring + '%'),
+                          ('%' + name_substring + '%')])
 
         data = cur.fetchall()
         cur.close()
@@ -55,6 +56,9 @@ logger.info("SUCCESS: Connection to RDS mysql instance succeeded")
 
 
 def formatQueryOutput(tuples):
+    if tuples is None or len(tuples) == 0:
+        return "no books found"
+
     output = ""
     for tuple in tuples:
         output += "Book: {2}, Series: {1}, link: {4}\n".format(*tuple)

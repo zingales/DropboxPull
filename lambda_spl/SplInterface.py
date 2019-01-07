@@ -1,5 +1,6 @@
 import requests
 from lxml import html
+import re
 
 
 class SplInterface(object):
@@ -42,6 +43,15 @@ class SplInterface(object):
             book_id=book_id, auth_token=auth_token, email=self.email)
 
         r = self.session.get(url)
+
+
+def get_book_id_from_url(url):
+    regex = r"https:\/\/seattle.bibliocommons.com\/item\/show\/(\d+)"
+    match = re.search(regex, url)
+    if match:
+        return match.group(1)
+
+    return None
 
 
 def test1(spli):
